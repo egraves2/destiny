@@ -10,13 +10,13 @@ function App() {
     
     <Route exact path="/" component={Main} />
     <Route path="/oauth" component={OauthCallback} />
+    
 
   </BrowserRouter>);
 
 }
 
 function Main(){
-
   function oauth(){
     var clientID = '31997'
     const redirectURI='https://loadout.now.sh/oauth'
@@ -35,11 +35,13 @@ function Main(){
   
 </div>)
 }
-
+/*
 function OauthCallback(props){
   console.log(props)
-
+  
   async function getToken(){
+      
+    fetch(/api?code=${code})
     var authCode = props.location.search.split('=')[1]
     console.log(authCode)
     const url = `https://www.bungie.net/Platform/App/OAuth/Token/`
@@ -61,6 +63,24 @@ function OauthCallback(props){
     getToken()
   },[])
 
+  return (<div>oauth</div>)
+}
+*/
+
+function OauthCallback(props){
+  console.log(props)
+  async function getToken(){
+    var code = props.location.search.split('=')[1]
+    const r = await fetch(`/api?code=${code}`)
+    const json = await r.json()
+    console.log(json)
+    var token = ''
+    localStorage.setItem('token', token)
+    // redirect to main app
+  }
+  useEffect(()=>{
+    getToken()
+  },[])
   return (<div>oauth</div>)
 }
 
