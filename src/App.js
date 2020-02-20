@@ -1,7 +1,8 @@
 import React, {useContext, useState, useEffect} from 'react';
 import './App.css';
+import Home from './pages/home'
 import Button from '@material-ui/core/Button'
-import {Link,BrowserRouter,Route} from 'react-router-dom'
+import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import { getDefaultNormalizer } from '@testing-library/react';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
   return (<BrowserRouter>
     
     <Route exact path="/" component={Main} />
+    <Route path="/home" exact component={Home} />
     <Route path="/oauth" component={OauthCallback} />
     
 
@@ -35,37 +37,6 @@ function Main(){
   
 </div>)
 }
-/*
-function OauthCallback(props){
-  console.log(props)
-  
-  async function getToken(){
-      
-    fetch(/api?code=${code})
-    var authCode = props.location.search.split('=')[1]
-    console.log(authCode)
-    const url = `https://www.bungie.net/Platform/App/OAuth/Token/`
-    const r = await fetch(url, {
-      headers:{
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': "Basic YOXKt1vRm25j4u6ZY3dpza-c-wdSoBj0GZwAurxvR7U",
-        'grant_type': `authorization_code&code=${authCode}`
-      }
-    })
-    const json = await r.json()
-    console.log(json)
-    var token = ''
-    localStorage.setItem('token', token)
-    // redirect to main app
-  }
-
-  useEffect(()=>{
-    getToken()
-  },[])
-
-  return (<div>oauth</div>)
-}
-*/
 
 function OauthCallback(props){
   console.log(props)
@@ -81,7 +52,7 @@ function OauthCallback(props){
   useEffect(()=>{
     getToken()
   },[])
-  return (<div>oauth</div>)
+  return (<Redirect to='/home' />)
 }
 
 export default App;
