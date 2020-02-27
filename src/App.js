@@ -1,6 +1,7 @@
 import React, {useContext, useState, useEffect} from 'react';
 import './App.css';
-import Home from './pages/home'
+import './pages/home.css';
+import Home from './home'
 import Button from '@material-ui/core/Button'
 import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import { getDefaultNormalizer } from '@testing-library/react';
@@ -45,9 +46,9 @@ function OauthCallback(props){
     const r = await fetch(`/api?code=${code}`)
     const json = await r.json()
     console.log(json)
-    var token = ''
+    var token = json.access_token
+    console.log(token)
     localStorage.setItem('token', token)
-    // redirect to main app
   }
   useEffect(()=>{
     getToken()
