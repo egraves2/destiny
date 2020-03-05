@@ -87,6 +87,12 @@ const useStyles = makeStyles(theme => ({
       [theme.breakpoints.up('md')]: {
         display: 'none',
       },
+      sectionBody: {
+        [theme.breakpoints.up('sm')]: {
+            marginLeft:250,
+            marginRight:10
+          },
+      }
     },
   }));
 
@@ -172,6 +178,7 @@ function LoadoutSearch() {
               <div className={classes.searchIcon}>
                 <SearchIcon />
               </div>
+              
                     <InputBase
                     placeholder="Search"
                     value={text}
@@ -196,6 +203,7 @@ function LoadoutSearch() {
             </AppBar>
                 
             </div>
+            
             <div className = "bottomElements">
             <Button 
               variant="contained" color="secondary"

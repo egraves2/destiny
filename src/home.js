@@ -1,7 +1,8 @@
 import React, {useContext, useState, useEffect} from 'react';
 import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';  
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { fade, makeStyles } from '@material-ui/core/styles';
 import HamMenu from './drawer.js'
 import SearchBar from './searchbar.js'
 import Button from '@material-ui/core/Button'
@@ -9,6 +10,77 @@ import './App.css';
 import Pagination from '@material-ui/lab/Pagination';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints'
 const breakpoints = createBreakpoints({})
+
+const useStyles = makeStyles(theme => ({
+  grow: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    
+  },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
+  },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(3),
+      width: 'auto',
+    },
+  },
+  searchIcon: {
+    width: theme.spacing(7),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 7),
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: 200,
+    },
+  },
+  textField: {
+      width: 300,
+      height: 48,
+      marginLeft: 50,
+  },
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
+    },
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
+    
+     
+  },
+}));
+
 const theme = createMuiTheme({
 
   palette: {
@@ -105,6 +177,8 @@ function Home(){
     getProfile()
   },[])
 
+  const classes = useStyles();
+
     return (<section id="homepage">
       <div className="home">
       
@@ -114,6 +188,7 @@ function Home(){
             <CssBaseline/>
             <HamMenu {...user}/>
             <SearchBar/>
+            {/* <div className = {classes.sectionBody}> */}
             <div className = "bottomElements">
             <Button 
               variant="contained" color="secondary"
@@ -126,6 +201,7 @@ function Home(){
               shape="rounded" 
               />
             </div>
+            {/* </div> */}
           </MuiThemeProvider>
         </header>
           

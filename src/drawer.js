@@ -69,11 +69,11 @@ function ResponsiveDrawer(props) {
   const drawer = (
     <div>
       <div className={classes.toolbar} />
-      <Typography>
+      <Typography variant="h5" align="center">
           App Title
       </Typography>
       <Divider />
-        <img src = {props.emblemBackground}/>
+        <img src = {props.emblemBackground} height="66"/>
       <Divider />
       <List>
         

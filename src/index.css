@@ -7,7 +7,58 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
+code .someting{
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@media only screen and (min-width: 600px){ 
+  /* 600px + */
+  .bottomElements{
+    padding: 0;
+    left: 240px;
+    position: absolute;
+    width: calc(100% - 240px);
+    bottom: 40px;
+  }
+
+  .MuiButtonBase-root.MuiButton-root.MuiButton-contained.MuiButton-containedSecondary{
+    width: 344px;
+    height: 48px;
+    margin: auto;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .MuiPagination-root.pagination{
+    margin: auto;
+    display: block;
+    width: 240px;
+  }
+
+}
+
+@media only screen and (max-width: 600px){
+  /* anything less than 600px */
+  .bottomElements{
+    padding: 0;
+    position: absolute;
+    width: 100%;
+    bottom: 40px;
+  }
+
+  .MuiButtonBase-root.MuiButton-root.MuiButton-contained.MuiButton-containedSecondary{
+    width: 344px;
+    height: 48px;
+    margin: auto;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .MuiPagination-root.pagination{
+    margin: auto;
+    display: block;
+    width: 240px;
+  }
+
 }
