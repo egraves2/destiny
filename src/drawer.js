@@ -22,8 +22,10 @@ const drawerWidth = 240;
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
+    
   },
   drawer: {
+    
     [theme.breakpoints.up('sm')]: {
       width: drawerWidth,
       flexShrink: 0,
@@ -46,6 +48,7 @@ const useStyles = makeStyles(theme => ({
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
     width: drawerWidth,
+    backgroundColor: '#1E2025',
   },
   content: {
     flexGrow: 1,
@@ -66,27 +69,43 @@ function ResponsiveDrawer(props) {
   const drawer = (
     <div>
       <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
       <Typography>
-          
+          App Title
       </Typography>
+      <Divider />
+        <img src = {props.emblemBackground}/>
+      <Divider />
+      <List>
+        
+          <ListItem >
+            
+            <ListItemText >Glimmer </ListItemText>
+            {props.glimmer}
+        </ListItem>
+        <ListItem >
+            <ListItemText >Shards </ListItemText>
+            {props.shards}
+        </ListItem>
+        <ListItem >
+            <ListItemText >Bright Dust </ListItemText>
+            {props.dust}
+        </ListItem>
+        </List>
+        <Divider></Divider>
+        <List>
+            CUSTOMIZE
+            <ListItem>
+                <ListItemText>
+                    Loadouts
+                </ListItemText>
+            </ListItem>
+        </List>
+          
+        
+      
+      {props.name && <Typography>
+          {props.name}
+      </Typography>}
     </div>
   );
 
@@ -109,7 +128,7 @@ function ResponsiveDrawer(props) {
             noWrap 
             position="center"
             className={classes.grow}
-        >
+            >
             Loadouts
           </Typography>
         </Toolbar>
@@ -151,13 +170,5 @@ function ResponsiveDrawer(props) {
     </div>
   );
 }
-
-ResponsiveDrawer.propTypes = {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  container: PropTypes.any,
-};
 
 export default ResponsiveDrawer;

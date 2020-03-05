@@ -1,7 +1,7 @@
 import React, {useContext, useState, useEffect} from 'react';
 import './App.css';
-import './pages/home.css';
 import Home from './home'
+import loadoutSearch from './loadoutSearch'
 import Button from '@material-ui/core/Button'
 import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import { getDefaultNormalizer } from '@testing-library/react';
@@ -13,6 +13,7 @@ function App() {
     <Route exact path="/" component={Main} />
     <Route path="/home" exact component={Home} />
     <Route path="/oauth" component={OauthCallback} />
+    <Route path="/loadoutSearch" component={loadoutSearch} />
     
 
   </BrowserRouter>);
@@ -47,8 +48,9 @@ function OauthCallback(props){
     const json = await r.json()
     console.log(json)
     var token = json.access_token
-    console.log(token)
+    var membershipID = json.membership_id
     localStorage.setItem('token', token)
+    localStorage.setItem('membershipID', membershipID)
   }
   useEffect(()=>{
     getToken()
