@@ -106,10 +106,10 @@ const theme = createMuiTheme({
   }
 });
 
-function Home(){
+function Home({user,setUser,items,addItem,state,setState}){
   
   document.body.style.backgroundImage = "linear-gradient(to top, #2C3040, #3C4764)";
-  const [user,setUser] = useState({})
+  
   async function getUser(){
 
     const root = 'https://www.bungie.net/Platform/User/GetMembershipsForCurrentUser/'
@@ -121,30 +121,20 @@ function Home(){
       headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d', 'Authorization':`Bearer ${token}`},
       })
       const response = await r.json()
-      var membershipType = response.Response.destinyMemberships[0].membershipType
+      //var membershipType = response.Response.destinyMemberships[0].membershipType
+      var membershipType = "3"
       localStorage.setItem('membershipType', membershipType)
-      var membershipId = response.Response.destinyMemberships[0].membershipId
+      let membershipId
+      response.Response.destinyMemberships.map(m=>{
+        if(m.membershipType=="3")
+          membershipId = m.membershipId
+      })
       localStorage.setItem('membershipId', membershipId)
       console.log(response)
-      
-      
-      
-  }
-  
-  async function getManifest(){
-    let root = 'https://www.bungie.net/Platform'
-    var manifestEP = '/Destiny2/Manifest/'
-    const url = root + manifestEP
-    const r = await fetch(url, {
-      method: 'GET'
-    })
-    const response = await r.json()
-    console.log(response)
   }
 
   async function getProfile(){
     let root = 'https://www.bungie.net/Platform'
-    //var destinyMembershipId = localStorage.getItem('membershipID')
     var token = localStorage.getItem("token");
     var membershipType = localStorage.getItem('membershipType')
     var destinyMembershipId = localStorage.getItem('membershipId')
@@ -155,11 +145,20 @@ function Home(){
         headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d', 'Authorization':`Bearer ${token}`},
         })
     const response = await r.json()
+    console.log(response)
     var character = response.Response.profile.data.characterIds[0]
     var emblem = response.Response.characters.data[character].emblemBackgroundPath
     const user = {
       name: response.Response.profile.data.userInfo.displayName,
-      characterId: response.Response.profile.data.characterIds[0],
+      characterArray: response.Response.characterInventories.data[character].items.map(c=> {
+        return c.itemInstanceId
+      }),
+      itemHashArray: response.Response.characterInventories.data[character].items.map(c=> {
+        return c.itemHash
+      }),
+      equippedItemArray: response.Response.characterEquipment.data[character].items.map(e=> {
+        return e.itemHash
+      }),
       light: response.Response.characters.data[character].light,
       classHash: 'Null',
       emblemBackground: 'https://www.bungie.net' + emblem,
@@ -167,12 +166,52 @@ function Home(){
       shards: '0',
       dust: response.Response.profileCurrencies.data.items[1].quantity,
     }
+    
     console.log(user)
     setUser(user)
-    console.log(response)
+    
+    user.itemHashArray.forEach((itemHashArray,i)=>{
+        setTimeout(()=>{
+          setState(false)
+          getItemDef(itemHashArray)
+        },i*100
+    )
+  })
+  
+    
+    user.equippedItemArray.forEach((equippedItemArray,i)=>{
+      setTimeout(()=>{
+        setState(true)
+        getItemDef(equippedItemArray)
+      },i*100
+    )
+  })
   }
+
+  async function getItemDef(hashIdentifier){
+    if (!hashIdentifier) return
+    var token = localStorage.getItem("token");
+    let root = 'https://www.bungie.net/Platform'
+    var itemEP = `/Destiny2/Manifest/DestinyInventoryItemDefinition/${hashIdentifier}/`
+    const url = root + itemEP
+    const r = await fetch(url, {
+      method:'GET',
+      headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d'},
+      })
+    const response = await r.json()
+    const item = response.Response
+    if(state && item.itemType=='3' || item.itemType=='2'){
+      item.Active = "true"
+      addItem(item)
+    }
+    else{
+      item.Active = "false"
+      addItem(item)
+    }
+    //console.log(response)
+  }
+
   useEffect(()=>{
-    getManifest()
     getUser()
     getProfile()
   },[])
@@ -188,7 +227,21 @@ function Home(){
             <CssBaseline/>
             <HamMenu {...user}/>
             <SearchBar/>
-            {/* <div className = {classes.sectionBody}> */}
+            
+            <div className = "searchResults">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.Active==="true"){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="80"
+                        />
+                        </div>
+                        )}
+                    })}
+
+            </div>
             <div className = "bottomElements">
             <Button 
               variant="contained" color="secondary"

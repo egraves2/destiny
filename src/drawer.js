@@ -92,14 +92,16 @@ function ResponsiveDrawer(props) {
         </ListItem>
         </List>
         <Divider></Divider>
+        <Toolbar>
         <List>
             CUSTOMIZE
-            <ListItem>
+            <ListItem button>
                 <ListItemText>
                     Loadouts
                 </ListItemText>
             </ListItem>
         </List>
+        </Toolbar>
           
         
       

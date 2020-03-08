@@ -123,13 +123,13 @@ const useStyles = makeStyles(theme => ({
    }
  });
 
-function LoadoutSearch() {
+function LoadoutSearch(props) {
     const [text, setText] = useState('')
-    const [items, setItems] = useState([])
+    //const [items, setItems] = useState([])
     document.body.style.backgroundImage = "linear-gradient(to top, #2C3040, #3C4764)";
 
     
-    
+    /*
     async function getItems(){
         setItems([])
         let url = 'https://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/'
@@ -146,8 +146,9 @@ function LoadoutSearch() {
         
     }
     console.log(items)
+    */
     
-
+    console.log(props.items)
      
     const classes = useStyles();
     
@@ -179,14 +180,16 @@ function LoadoutSearch() {
                 <SearchIcon />
               </div>
               
-                    <InputBase
+                     <InputBase
                     placeholder="Search"
                     value={text}
                     onChange={e=> setText(e.target.value)}
+                    /*
                     onKeyPress={e=>{
                     if(e.key==='Enter')
                         getItems()
                     }}
+                    */
                     //className={classes.textField}
                     classes={{
                         root: classes.inputRoot,
@@ -194,7 +197,7 @@ function LoadoutSearch() {
                       }}
                     
                     />
-                    </div>
+                    </div> 
                     <div className={classes.grow} />
                      <div className={classes.sectionDesktop}></div>
                     
@@ -203,7 +206,21 @@ function LoadoutSearch() {
             </AppBar>
                 
             </div>
-            
+            {console.log(props.items)}
+            <div className = "searchResults">
+                    {props.items.map(item=>{
+                        console.log(item)
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        return (<div className="itemImage">
+                            <img src={imageUrl}
+                            height="50"
+                            padding="20"/>
+                        </div>)
+                    })}
+
+            </div>
+
             <div className = "bottomElements">
             <Button 
               variant="contained" color="secondary"

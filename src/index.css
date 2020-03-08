@@ -34,6 +34,12 @@ code .someting{
     margin: auto;
     display: block;
     width: 240px;
+    margin-top: 50px;
+  }
+  .searchResults{
+    left: 260px;
+    position: absolute;
+    width: calc(100% - 260px);
   }
 
 }

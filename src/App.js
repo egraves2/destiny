@@ -1,19 +1,31 @@
 import React, {useContext, useState, useEffect} from 'react';
 import './App.css';
 import Home from './home'
-import loadoutSearch from './loadoutSearch'
+import LoadoutSearch from './loadoutSearch'
 import Button from '@material-ui/core/Button'
 import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import { getDefaultNormalizer } from '@testing-library/react';
 
 function App() {
-
+  const [user,setUser] = useState({})
+  const [state,setState] = useState(true)
+  const [items,setItems] = useState([])
+  /*
+  const [currentItem,setCurrentItem] = useState([])
+  */
+  function addItem(item){
+    setItems(current=>[...current,item])
+  }
+  
   return (<BrowserRouter>
     
     <Route exact path="/" component={Main} />
-    <Route path="/home" exact component={Home} />
+    <Route path="/home" exact render={props=><Home {...props }user={user} 
+      setUser={setUser} items={items} addItem={addItem}
+      state={state} setState={setState}/>} />
     <Route path="/oauth" component={OauthCallback} />
-    <Route path="/loadoutSearch" component={loadoutSearch} />
+    <Route path="/loadoutSearch" render={props=>(<LoadoutSearch {...props } 
+      items={items} state={state} setState={setState}/>)} />
     
 
   </BrowserRouter>);
