@@ -4,6 +4,7 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';  
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
+import Box from '@material-ui/core/Box';
 import Input from '@material-ui/core/Input';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -111,19 +112,9 @@ const useStyles = makeStyles(theme => ({
        main: '#F6D04D',
      },
    },
-   overrides: {
-     MuiTab: {
-     root: {
-       [breakpoints.up('sm')]: {
-         marginLeft:250,
-         marginRight:10
-       },
-     }}
- 
-   }
  });
 
-function LoadoutSearch(props) {
+function LoadoutSearch({user,setUser,items,addItem,state,setState,home}) {
     const [text, setText] = useState('')
     //const [items, setItems] = useState([])
     document.body.style.backgroundImage = "linear-gradient(to top, #2C3040, #3C4764)";
@@ -148,7 +139,7 @@ function LoadoutSearch(props) {
     console.log(items)
     */
     
-    console.log(props.items)
+    console.log(items)
      
     const classes = useStyles();
     
@@ -162,8 +153,8 @@ function LoadoutSearch(props) {
             }
             <div className={classes.grow}>
             <AppBar
-                
-                position="static">
+                position="static"
+                style={{ background: 'transparent', boxShadow: 'none'}}>
                 <Toolbar>
                     
                     <IconButton
@@ -204,11 +195,10 @@ function LoadoutSearch(props) {
                     
                     </Toolbar>
             </AppBar>
-                
             </div>
-            {console.log(props.items)}
+            {console.log(items)}
             <div className = "searchResults">
-                    {props.items.map(item=>{
+                    {items.map(item=>{
                         console.log(item)
                         const image = item.displayProperties.icon
                         const imageUrl = "https://www.bungie.net" + image

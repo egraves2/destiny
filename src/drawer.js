@@ -17,7 +17,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles';
 
-const drawerWidth = 240;
+const drawerWidth = 290;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,11 +32,11 @@ const useStyles = makeStyles(theme => ({
     },
   },
   appBar: {
+    boxShadow: 'none',
     [theme.breakpoints.up('sm')]: {
       //width: `calc(100% - ${drawerWidth}px)`,
       //marginLeft: drawerWidth,
-      alignItems: 'center',
-      justify: 'center',
+      left:"130px",
     },
   },
   menuButton: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
+    //padding: theme.spacing(3),
   },
 }));
 
@@ -69,12 +69,17 @@ function ResponsiveDrawer(props) {
   const drawer = (
     <div>
       <div className={classes.toolbar} />
-      <Typography variant="h5" align="center">
-          App Title
+      <div style={{marginLeft: '44px',marginBottom:"70px"}}>
+      <Typography variant="h4">
+          Destiny Gear Center
       </Typography>
-      <Divider />
-        <img src = {props.emblemBackground} height="66"/>
-      <Divider />
+      </div>
+
+      <div className="emblem">
+        <img src = {props.emblemBackground} height="70"/>
+        <div className="light-value">{props.light}</div>
+        <div className="class-name">{props.characterName}</div>
+    </div>
       <List>
         
           <ListItem >
@@ -114,7 +119,7 @@ function ResponsiveDrawer(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
+      <AppBar position="fixed"  className={classes.appBar}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -128,10 +133,9 @@ function ResponsiveDrawer(props) {
           <Typography 
             variant="h6" 
             noWrap 
-            position="center"
             className={classes.grow}
             >
-            Loadouts
+            Gear
           </Typography>
         </Toolbar>
       </AppBar>

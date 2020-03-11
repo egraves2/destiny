@@ -4,17 +4,21 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import HamMenu from './drawer.js'
+import TabPanel from './tabpanel.js'
 import SearchBar from './searchbar.js'
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button'
 import './App.css';
 import Pagination from '@material-ui/lab/Pagination';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints'
+import { useHistory } from "react-router-dom";
 const breakpoints = createBreakpoints({})
 
 const useStyles = makeStyles(theme => ({
-  grow: {
-    flexGrow: 1,
-  },
+  flexGrow: 1,
+  
   menuButton: {
     marginRight: theme.spacing(2),
     
@@ -82,7 +86,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const theme = createMuiTheme({
-
+  typography: {
+    "fontFamily": "\"Archivo\", \"Helvetica\", \"Arial\", sans-serif",
+    "fontSize": 14,
+    //"fontWeightRegular": 400,
+    "fontWeightMedium": 500
+  },
   palette: {
     type: 'dark',
 
@@ -94,20 +103,14 @@ const theme = createMuiTheme({
       main: '#F6D04D',
     },
   },
-  overrides: {
-    MuiTab: {
-    root: {
-      [breakpoints.up('sm')]: {
-        marginLeft:250,
-        marginRight:10
-      },
-    }}
 
-  }
+  
 });
 
-function Home({user,setUser,items,addItem,state,setState}){
-  
+
+
+function Home({user,setUser,items,addItem,state,setState,home}){
+  let history = useHistory();
   document.body.style.backgroundImage = "linear-gradient(to top, #2C3040, #3C4764)";
   
   async function getUser(){
@@ -132,7 +135,7 @@ function Home({user,setUser,items,addItem,state,setState}){
       localStorage.setItem('membershipId', membershipId)
       console.log(response)
   }
-
+  var character = ''
   async function getProfile(){
     let root = 'https://www.bungie.net/Platform'
     var token = localStorage.getItem("token");
@@ -145,50 +148,80 @@ function Home({user,setUser,items,addItem,state,setState}){
         headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d', 'Authorization':`Bearer ${token}`},
         })
     const response = await r.json()
+    const prof = response.Response
     console.log(response)
-    var character = response.Response.profile.data.characterIds[0]
-    var emblem = response.Response.characters.data[character].emblemBackgroundPath
+
+    character = prof.profile.data.characterIds[0]
+    var itemArray = prof.characterEquipment.data[character].items
+    var emblem = prof.characters.data[character].emblemBackgroundPath
+    var characterName = ''
+    if(prof.characters.data[character].classHash=='671679327') {
+      characterName= 'Hunter'
+    } else if (prof.characters.data[character].classHash=='3655393761') {
+      characterName= "Titan"
+    } else if (prof.characters.data[character].classHash=='3111576190') {
+      characterName= "Warlock"
+    }
     const user = {
-      name: response.Response.profile.data.userInfo.displayName,
-      characterArray: response.Response.characterInventories.data[character].items.map(c=> {
+      name: prof.profile.data.userInfo.displayName,
+      itemIdArray: prof.characterInventories.data[character].items.map(c=> {
         return c.itemInstanceId
       }),
-      itemHashArray: response.Response.characterInventories.data[character].items.map(c=> {
-        return c.itemHash
+      characterName: characterName,
+      itemHashArray: prof.characterInventories.data[character].items.map(c=> {
+        return c
       }),
-      equippedItemArray: response.Response.characterEquipment.data[character].items.map(e=> {
-        return e.itemHash
+      equippedItemArray: prof.characterEquipment.data[character].items.map(e=> {
+        return e
       }),
-      light: response.Response.characters.data[character].light,
+      light: prof.characters.data[character].light,
       classHash: 'Null',
       emblemBackground: 'https://www.bungie.net' + emblem,
-      glimmer: response.Response.profileCurrencies.data.items[0].quantity,
-      shards: '0',
-      dust: response.Response.profileCurrencies.data.items[1].quantity,
+      glimmer: prof.profileCurrencies.data.items.map(g=> {
+        if(g.itemHash=="3159615086"){
+          return g.quantity.toString()
+        } else return "0"
+      }),
+      shards: prof.profileCurrencies.data.items.map(g=> {
+        if(g.itemHash=="1022552290"){
+          return g.quantity.toString()
+        } else return "0"
+      }),
+      dust: prof.profileCurrencies.data.items.map(g=> {
+        if(g.itemHash=="2817410917"){
+          return g.quantity.toString()
+        } else return "0"
+      }),
     }
     
     console.log(user)
     setUser(user)
+/*
+    user.itemIdArray.forEach((itemIdArray,i)=>{
+      setTimeout(()=>{
+        getInstancedItem(itemIdArray.itemHash)
+      },i*100)
+    })
+    */
     
     user.itemHashArray.forEach((itemHashArray,i)=>{
         setTimeout(()=>{
-          setState(false)
-          getItemDef(itemHashArray)
+          getItemDef(itemHashArray,false)
         },i*100
-    )
-  })
-  
-    
+        )
+    })
+   
     user.equippedItemArray.forEach((equippedItemArray,i)=>{
       setTimeout(()=>{
-        setState(true)
-        getItemDef(equippedItemArray)
+        getItemDef(equippedItemArray,true)
       },i*100
-    )
-  })
+      )
+    })
   }
 
-  async function getItemDef(hashIdentifier){
+  async function getItemDef(inventoryItem,equipped){
+    var hashIdentifier = inventoryItem.itemHash
+    var itemInstanceId = inventoryItem.itemInstanceId
     if (!hashIdentifier) return
     var token = localStorage.getItem("token");
     let root = 'https://www.bungie.net/Platform'
@@ -200,15 +233,51 @@ function Home({user,setUser,items,addItem,state,setState}){
       })
     const response = await r.json()
     const item = response.Response
-    if(state && item.itemType=='3' || item.itemType=='2'){
-      item.Active = "true"
+    item.equipped = equipped
+    item.itemId = itemInstanceId
+
+    if(item.itemType=='3' || item.itemType=='2'){
       addItem(item)
     }
-    else{
-      item.Active = "false"
-      addItem(item)
-    }
-    //console.log(response)
+    
+    console.log(response)
+  }
+
+  async function getInstancedItem(itemInstanceId){
+    if (!itemInstanceId) return
+    var membershipType = localStorage.getItem('membershipType')
+    var destinyMembershipId = localStorage.getItem('membershipId')
+    let url = 'https://www.bungie.net/Platform'
+    var instanceEP = `/Destiny2/${membershipType}/Profile/${destinyMembershipId}/Item/${itemInstanceId}/?components=300`
+    url += instanceEP
+    var token = localStorage.getItem("token");
+    const r = await fetch(url, {
+        method:'GET',
+        headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d', 'Authorization':`Bearer ${token}`},
+        })
+    const response = await r.json()
+    const item = response.Response
+    if(item.instance.data.canEquip='true'){
+      console.log(response)
+      }
+}
+
+  async function equipItem(itemId){
+    let root = 'https://www.bungie.net/Platform'
+    var equipEP = `/Destiny2/Actions/Items/EquipItem/`
+    var membershipType = localStorage.getItem('membershipType')
+    const url = root + equipEP
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d'},
+      body:{
+        itemId:itemId,
+        characterId:character,
+        membershipType:membershipType,
+      },
+      })
+    const response = await r.json()
+    const item = response.Response
   }
 
   useEffect(()=>{
@@ -216,7 +285,24 @@ function Home({user,setUser,items,addItem,state,setState}){
     getProfile()
   },[])
 
+  function a11yProps(index) {
+    return {
+      id: `full-width-tab-${index}`,
+      'aria-controls': `full-width-tabpanel-${index}`,
+    };
+  }
+
   const classes = useStyles();
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const handleChangeIndex = index => {
+    setValue(index);
+  };
+
 
     return (<section id="homepage">
       <div className="home">
@@ -226,34 +312,277 @@ function Home({user,setUser,items,addItem,state,setState}){
           >
             <CssBaseline/>
             <HamMenu {...user}/>
-            <SearchBar/>
+            <div className={classes.root}>
+              <AppBar position="static">
+              <div style={{position: "fixed", bottom:"0", width:"100%"}}>
+                <Tabs value={value} variant="fullwidth" onChange={handleChange} 
+                   position="fixed" aria-label="full width tabs example"
+                  className="tabbar">
+                  <Tab label="WEAPONS" {...a11yProps(0)} />
+                  <Tab label="ARMOR" {...a11yProps(1)} />
+                </Tabs>
+                </div>
+              </AppBar>
             
+            
+            {/* <SearchBar/> */}
             <div className = "searchResults">
+            <TabPanel value={value} index={0} dir={theme.direction}>
+              <div className="categoryTitle">
+                Kinetic
+              </div>
+              <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
                         const imageUrl = "https://www.bungie.net" + image
-                        if(item.Active==="true"){
-                        return (<div className="itemImage">
+                        if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='1498876634'){
+                          console.log(item)
+                        return (<div className="itemImage"
+                          >
                           <img src={imageUrl}
-                            height="80"
+                            height="100"
                         />
                         </div>
                         )}
                     })}
-
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='1498876634'){
+                        return (<div className="itemImage"
+                          onClick={equipItem(item.itemId)}>
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}
+                    </div>
+                    </div>
+              <div className="categoryTitle">
+                Energy
+              </div>
+              <div className = "category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='2465295065'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })}
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='2465295065'){
+                        return (<div className="itemImage"
+                          onClick={equipItem(item.itemId)}>
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}
+                    </div>
+                    </div>
+                    <div className="categoryTitle">
+                Power
+              </div>
+              <div className = "category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='953998645'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })}
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='953998645'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}
+                    </div>
+                    </div>
+            </TabPanel>
+            <TabPanel value={value} index={1} dir={theme.direction}>
+              <div className="categoryTitle">
+                  Helmet
+                </div>
+                <div className="category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='45'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                      })} 
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='45'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}  
+                  </div>  
+                  </div> 
+                  <div className="categoryTitle">
+                  Gauntlets
+                </div>
+                <div className="category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='46'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })} 
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='46'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}  
+                  </div>  
+                  </div>
+                  <div className="categoryTitle">
+                  Chest Armor
+                </div>
+                <div className="category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='47'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })} 
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='47'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}  
+                  </div>  
+                  </div>
+                  <div className="categoryTitle">
+                  Leg Armor
+                </div>
+                <div className="category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='48'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })} 
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='48'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}  
+                  </div> 
+                  </div>
+                  <div className="categoryTitle">
+                  Class Item
+                </div>
+                <div className="category">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='49'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="100"
+                        />
+                        </div>
+                        )}
+                    })} 
+                    <div className="unequipped">
+                    {items.map(item=>{
+                        const image = item.displayProperties.icon
+                        const imageUrl = "https://www.bungie.net" + image
+                        if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='49'){
+                        return (<div className="itemImage">
+                          <img src={imageUrl}
+                            height="70"
+                        />
+                        </div>
+                        )}
+                    })}  
+                  </div> 
+                  </div>
+            
+            </TabPanel>
             </div>
-            <div className = "bottomElements">
+            </div>
+            
+            {/* <div className = "bottomElements">
             <Button 
               variant="contained" color="secondary"
               style={{width:344,height:48}}
-              onClick={()=>window.location.assign('/loadoutSearch')}>
+              onClick={()=>history.push('/loadoutSearch')}>
                 NEW
             </Button>
             <Pagination className="pagination"
               count={4} 
               shape="rounded" 
               />
-            </div>
+            </div> */}
             {/* </div> */}
           </MuiThemeProvider>
         </header>
