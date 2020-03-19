@@ -2,7 +2,7 @@ import React, {useContext, useState, useEffect} from 'react';
 import {Link,BrowserRouter,Route,Redirect} from 'react-router-dom'
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { fade, makeStyles, withStyles } from '@material-ui/core/styles';
 import HamMenu from './drawer.js'
 import TabPanel from './tabpanel.js'
 import SearchBar from './searchbar.js'
@@ -14,11 +14,18 @@ import './App.css';
 import Pagination from '@material-ui/lab/Pagination';
 import createBreakpoints from '@material-ui/core/styles/createBreakpoints'
 import { useHistory } from "react-router-dom";
+import Tooltip from '@material-ui/core/Tooltip';
 const breakpoints = createBreakpoints({})
 
 const useStyles = makeStyles(theme => ({
   flexGrow: 1,
-  
+  arrow: {
+    color: theme.palette.common.black,
+  },
+  tooltip: {
+    fontSize: '16px',
+    backgroundColor: theme.palette.common.black,
+  },
   menuButton: {
     marginRight: theme.spacing(2),
     
@@ -107,6 +114,16 @@ const theme = createMuiTheme({
   
 });
 
+const ItemTooltip = withStyles(theme => ({
+  tooltip: {
+    backgroundColor: '#1E2025',
+    color: 'white',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(18),
+    fontWeight: '500',
+  },
+}))(Tooltip);
+
 
 
 function Home({user,setUser,items,addItem,state,setState,home}){
@@ -135,7 +152,6 @@ function Home({user,setUser,items,addItem,state,setState,home}){
       localStorage.setItem('membershipId', membershipId)
       console.log(response)
   }
-  var character = ''
   async function getProfile(){
     let root = 'https://www.bungie.net/Platform'
     var token = localStorage.getItem("token");
@@ -151,7 +167,8 @@ function Home({user,setUser,items,addItem,state,setState,home}){
     const prof = response.Response
     console.log(response)
 
-    character = prof.profile.data.characterIds[0]
+    var character = prof.profile.data.characterIds[0]
+    localStorage.setItem('character', character)
     var itemArray = prof.characterEquipment.data[character].items
     var emblem = prof.characters.data[character].emblemBackgroundPath
     var characterName = ''
@@ -180,17 +197,17 @@ function Home({user,setUser,items,addItem,state,setState,home}){
       glimmer: prof.profileCurrencies.data.items.map(g=> {
         if(g.itemHash=="3159615086"){
           return g.quantity.toString()
-        } else return "0"
+        }
       }),
       shards: prof.profileCurrencies.data.items.map(g=> {
         if(g.itemHash=="1022552290"){
           return g.quantity.toString()
-        } else return "0"
+        }
       }),
       dust: prof.profileCurrencies.data.items.map(g=> {
         if(g.itemHash=="2817410917"){
           return g.quantity.toString()
-        } else return "0"
+        }
       }),
     }
     
@@ -240,10 +257,10 @@ function Home({user,setUser,items,addItem,state,setState,home}){
       addItem(item)
     }
     
-    console.log(response)
   }
 
-  async function getInstancedItem(itemInstanceId){
+  async function getInstancedItem(item){
+    var itemInstanceId = item.itemId
     if (!itemInstanceId) return
     var membershipType = localStorage.getItem('membershipType')
     var destinyMembershipId = localStorage.getItem('membershipId')
@@ -256,30 +273,28 @@ function Home({user,setUser,items,addItem,state,setState,home}){
         headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d', 'Authorization':`Bearer ${token}`},
         })
     const response = await r.json()
-    const item = response.Response
-    if(item.instance.data.canEquip='true'){
+    if(response.Response.instance){
+      item.power = response.Response.instance.data.primaryStat.value
+    }
+    /*
+    if(item.instance && item.instance.data.canEquip=='true'){
       console.log(response)
       }
+      */
 }
 
   async function equipItem(itemId){
-    let root = 'https://www.bungie.net/Platform'
-    var equipEP = `/Destiny2/Actions/Items/EquipItem/`
     var membershipType = localStorage.getItem('membershipType')
-    const url = root + equipEP
-    const r = await fetch(url, {
-      method:'POST',
-      headers:{'X-API-Key':'7f69d229fe9046a2aa2326ee4ce96f4d'},
-      body:{
-        itemId:itemId,
-        characterId:character,
-        membershipType:membershipType,
-      },
-      })
-    const response = await r.json()
-    const item = response.Response
+    var characterId = localStorage.getItem('character')
+    var refreshToken = localStorage.getItem("refreshToken")
+    console.log(itemId)
+    console.log(characterId)
+    const r = await fetch(`/api/equipItems?itemId=${itemId}&membershipType=${membershipType}&characterId=${characterId}&token=${refreshToken}`)
+    console.log(r)
+    const json = await r.json()
+    console.log(json)
+    
   }
-
   useEffect(()=>{
     getUser()
     getProfile()
@@ -291,6 +306,15 @@ function Home({user,setUser,items,addItem,state,setState,home}){
       'aria-controls': `full-width-tabpanel-${index}`,
     };
   }
+
+/*
+  function ItemTooltip(props) {
+    const classes = useStyles();
+  
+    return <Tooltip arrow classes={classes} {...props} />;
+  }
+*/
+
 
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
@@ -328,33 +352,92 @@ function Home({user,setUser,items,addItem,state,setState,home}){
             {/* <SearchBar/> */}
             <div className = "searchResults">
             <TabPanel value={value} index={0} dir={theme.direction}>
+              <div className="pageContent">
               <div className="categoryTitle">
                 Kinetic
               </div>
               <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='1498876634'){
-                          console.log(item)
-                        return (<div className="itemImage"
-                          >
+                          //console.log(item)
+                        return (
+                        <div className="itemImage">
+                            
+                        <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
-                        />
+                          />
+                          
+                        </ItemTooltip>
                         </div>
+                        
                         )}
-                    })}
+                      })}
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='1498876634'){
-                        return (<div className="itemImage"
-                          onClick={equipItem(item.itemId)}>
+                        return (<div className="itemImage">
+                        <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}
@@ -366,25 +449,81 @@ function Home({user,setUser,items,addItem,state,setState,home}){
               <div className = "category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='2465295065'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='2465295065'){
-                        return (<div className="itemImage"
-                          onClick={equipItem(item.itemId)}>
+                        return (<div className="itemImage">
+                        <ItemTooltip arrow
+                        
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}
@@ -396,55 +535,170 @@ function Home({user,setUser,items,addItem,state,setState,home}){
               <div className = "category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.equippingBlock.equipmentSlotTypeHash=='953998645'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.equippingBlock.equipmentSlotTypeHash=='953998645'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}
                     </div>
                     </div>
+                    </div>
             </TabPanel>
             <TabPanel value={value} index={1} dir={theme.direction}>
+              <div className="pageContent">
               <div className="categoryTitle">
                   Helmet
                 </div>
                 <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='45'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                       })} 
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='45'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}  
@@ -456,24 +710,80 @@ function Home({user,setUser,items,addItem,state,setState,home}){
                 <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='46'){
                         return (<div className="itemImage">
+                         <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })} 
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='46'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}  
@@ -485,24 +795,80 @@ function Home({user,setUser,items,addItem,state,setState,home}){
                 <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='47'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })} 
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='47'){
                         return (<div className="itemImage">
+                         <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}  
@@ -514,24 +880,80 @@ function Home({user,setUser,items,addItem,state,setState,home}){
                 <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='48'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })} 
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='48'){
                         return (<div className="itemImage">
+                         <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}  
@@ -543,30 +965,86 @@ function Home({user,setUser,items,addItem,state,setState,home}){
                 <div className="category">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='49'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="100"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })} 
                     <div className="unequipped">
                     {items.map(item=>{
                         const image = item.displayProperties.icon
+                        const screenshot = item.screenshot
                         const imageUrl = "https://www.bungie.net" + image
+                        const screenshotUrl = "https://www.bungie.net" + screenshot
+                        getInstancedItem(item)
                         if(!item.equipped && item.itemType=='2' && item.itemCategoryHashes[1]=='49'){
                         return (<div className="itemImage">
+                          <ItemTooltip arrow
+                        title={
+                        <React.Fragment>
+                          <div className="detailedImage">
+                          <img src={screenshotUrl}
+                          width="220"/>
+                          </div>
+                          <div className="title">
+                          {item.displayProperties.name}
+                          </div>
+                          <div className = "item-type">
+                            {item.itemTypeDisplayName}
+                          </div>
+                          <div className="description">
+                            {item.displayProperties.description}
+                          </div>
+                          <hr/>
+                          <div className="power">
+                          {item.power}
+                          </div>
+                          
+                          </React.Fragment>
+                        }
+                        >
                           <img src={imageUrl}
                             height="70"
                         />
+                        </ItemTooltip>
                         </div>
                         )}
                     })}  
                   </div> 
                   </div>
-            
+                  </div>
             </TabPanel>
             </div>
             </div>

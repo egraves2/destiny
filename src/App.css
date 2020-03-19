@@ -46,6 +46,48 @@ html, body {
   transform: translate(-50%, -50%);
 }
 
+.currency {
+  display:flex;
+}
+
+.currencyIcon {
+  margin-right:5px;
+}
+
+
+.profile {
+  position:absolute;
+  bottom:145px;
+  left:38px;
+  font-size:18px;
+  font-weight:500;
+  display:flex;
+}
+
+.profilePic {
+  clip-path: circle(50% at 50% 50%);
+  
+}
+
+.MuiTypography-root.MuiListItemText-primary.MuiTypography-body1 {
+  font-size:22px;
+  font-weight:500;
+  color:white;
+}
+
+.MuiTypography-root.MuiTypography-body1 {
+  font-size:14px;
+  font-weight:500;
+  color:#626262;
+}
+
+.MuiTypography-root.profileName {
+  font-size:18px;
+  font-weight:500;
+  color:white;
+  margin-left:20px;
+}
+
 .class-name {
   position: absolute;
   top: 45%;
@@ -69,11 +111,13 @@ html, body {
 .categoryTitle {
   font-size:22px;
   margin-bottom:10px;
+  color:white;
 }
 
 .category {
   display:flex;
   max-width:330px;
+  margin-bottom:20px;
 }
 .unequipped {
   display:flex;
@@ -84,12 +128,81 @@ html, body {
   border: 2px solid white;
   margin-right:5px;
   display:inline-block;
+  opacity: 1;
+	-webkit-transition: .3s ease-in-out;
+	transition: .3s ease-in-out;
 }
 .itemImage img[equipped] {
   padding:2px;
   border: 3px solid white;
   margin-right:5px;
   display:inline-block;
+}
+
+
+.MuiTooltip-tooltip.jss230.MuiTooltip-tooltipPlacementBottom {
+  padding:0;
+}
+.title {
+  display:block;
+  position:relative;
+  padding-left:8px;
+  margin-top:5px;
+}
+
+.power {
+  display:flex;
+  justify-content: center;
+  font-size:20px;
+  font-weight:500;
+  align-items:center;
+  padding-bottom: 10px;
+}
+
+hr {
+  color:white;
+  display:block;
+  opacity:0.8;
+  margin-left:8px;
+  margin-right:8px;
+  border-style:inset;
+  border-width:0.5px;
+}
+
+.description {
+  font-size:12px;
+  font-style: italic;
+  opacity:0.6;
+  padding:8px;
+  line-height:normal;
+}
+
+.item-type {
+  font-size:14px;
+  opacity:0.8;
+  padding-left:8px;
+}
+
+.detailedImage {
+  position:relative;
+  display:inline-block;
+}
+
+.detailedImage:after{
+  content:'';
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  display:inline-block;
+  background:linear-gradient(to bottom, transparent 0%, #1E2025 100%);
+}
+
+.detailedImage img{
+  display:block;
+}
+
+.itemImage:hover img {
+  opacity:0.5;
 }
 
 .searchResults {
@@ -101,6 +214,16 @@ html, body {
 .bottomElements{
   padding: 0px;
   margin-top:100px;
+}
+
+.MuiButtonBase-root.MuiButton-root.MuiButton-contained.logout-button {
+  position:absolute;
+  width:214px;
+  background-color:#44474E;
+  color:white;
+  margin-bottom:50px;
+  left:38px;
+  display:block;
 }
 
 

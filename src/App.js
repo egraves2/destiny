@@ -60,8 +60,10 @@ function OauthCallback(props){
     const json = await r.json()
     console.log(json)
     var token = json.access_token
+    var refresh_token = json.refresh_token
     var membershipID = json.membership_id
     localStorage.setItem('token', token)
+    localStorage.setItem('refreshToken',refresh_token)
     localStorage.setItem('membershipID', membershipID)
   }
   useEffect(()=>{

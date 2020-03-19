@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
@@ -15,6 +16,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import { useHistory } from "react-router-dom";
 import { makeStyles, useTheme, withStyles } from '@material-ui/core/styles';
 
 const drawerWidth = 290;
@@ -57,6 +59,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ResponsiveDrawer(props) {
+    let history = useHistory();
   const { container } = props;
   const classes = useStyles();
   const theme = useTheme();
@@ -65,6 +68,8 @@ function ResponsiveDrawer(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+  const logoutURI='https://loadout.now.sh/oauth/reauth=true'
+  var clientID = '31997'
 
   const drawer = (
     <div>
@@ -76,44 +81,74 @@ function ResponsiveDrawer(props) {
       </div>
 
       <div className="emblem">
-        <img src = {props.emblemBackground} height="70"/>
+        <img src = {props.emblemBackground} height="70" width="290"/>
         <div className="light-value">{props.light}</div>
         <div className="class-name">{props.characterName}</div>
     </div>
-      <List>
+      <List className="currency">
         
           <ListItem >
-            
-            <ListItemText >Glimmer </ListItemText>
+            <div className='currencyIcon'>
+                <img src='https://vignette.wikia.nocookie.net/destinypedia/images/c/c5/Glimmer.png/revision/latest/scale-to-width-down/96?cb=20150426060802'
+                    height="24px"
+                    min-width="28px"/>
+            </div>
+            {/* <ListItemText >Glimmer </ListItemText> */}
             {props.glimmer}
         </ListItem>
         <ListItem >
-            <ListItemText >Shards </ListItemText>
+        <div className='currencyIcon'>
+                <img src='https://d2.destinygamewiki.com/mediawiki/images/3/3b/Legendary_shards_icon1.png'
+                    height="24px"/>
+            </div>
+            {/* <ListItemText >Shards </ListItemText> */}
             {props.shards}
         </ListItem>
         <ListItem >
-            <ListItemText >Bright Dust </ListItemText>
+        <div className='currencyIcon'>
+                <img src='https://d2.destinygamewiki.com/mediawiki/images/b/ba/Bright_dust1.png'
+                    height="24px"/>
+            </div>
+            {/* <ListItemText >Bright Dust </ListItemText> */}
             {props.dust}
         </ListItem>
         </List>
-        <Divider></Divider>
         <Toolbar>
-        <List>
+        <List className="pages">
+            <Typography>
             CUSTOMIZE
+            </Typography>
             <ListItem button>
                 <ListItemText>
-                    Loadouts
+                    Gear
                 </ListItemText>
             </ListItem>
         </List>
         </Toolbar>
-          
-        
+        <div className='profile'>
+         <div className = "profilePic">
+        <img src="https://www.bungie.net/img/profile/avatars/default_avatar.gif"
+            height="46px"
+        />
+        </div> 
       
-      {props.name && <Typography>
-          {props.name}
-      </Typography>}
-    </div>
+         {props.name && <Typography variant="h7" className='profileName'>  
+           {props.name} 
+        </Typography>
+        }
+      
+        </div>
+      <Button style={{bottom:0,height:52}}
+        variant="contained"
+        type="primary"
+        className="logout-button"
+        onClick={()=>
+        history.push('/')
+        } >
+          Log out</Button>
+          </div>
+          
+    
   );
 
   return (

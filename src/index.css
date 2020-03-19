@@ -16,6 +16,11 @@ code .someting{
   box-shadow:none;
 }
 
+.MuiTooltip-tooltip {
+  padding:0;
+}
+
+
 @media only screen and (min-width: 600px){ 
   /* 600px + */
   .bottomElements{
@@ -52,8 +57,8 @@ code .someting{
   }
 
   h6.MuiTypography-root{
-    margin-left: 180px;
-    font-size:32px;
+    margin-left: 200px;
+    font-size:28px;
     font-weight:400;
     display:block;
     margin-top:31px;
@@ -120,6 +125,9 @@ code .someting{
   .searchResults{
     display:flex;
     margin-top:10px;
+  }
+  .pageContent {
+    margin-top:50px;
   }
 
 }
