@@ -1,68 +1,13 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Destiny 2 Companion App (React JS)
 
-## Available Scripts
+This class project was completed for HCDE 438 Web Technologies. 
+My goal was to build an applica6on that connects to the game Destiny 2 using the Bungie.net API. The app was initially planned tobe able to create custom loadouts for players’ characters. This means that a user will be able to sign in to their Steam, Xbox, or Playsta6on Bungie account, view the current weapons and armor on their characters, and customize the characters’ loadouts in realtime.  
 
-In the project directory, you can run:
+Currently, Destiny 2 does not support character loadouts. A “loadout” refers to a set of weapons and armor that can be changed all at once. The current interface requires the user to individually swap out each item. Having a loadout system would save time, as different activities need different types of armor and weapons. Therefore, I think all Destiny players would benefit from this app. I planned to make the UI simple and intuitive so this action can be completed quickly. 
 
-### `npm start`
+##Reflection
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+This idea turned out to be much more challenging than I thought it would, but I learned a ton through the process. By the end of the project, I feel MUCH more comfortable with HTML and CSS. I learned how to efficiently use the Inspect tool to perfect the nitty-gritty details. I also now have a better understanding of React terminology and how to write GET/POST requests. Some areas I struggled with were navigating the API documentation and avoiding redundant code. The Bungie.net API lacked many guides, particularly for React. I had to do a ton of "googling" throughout this project to understand things such as CORS. I think my code isn't nearly as concise as it could be. For the sake of time, my code has some redundancy so I think I could have shortened parts of my code with additional functions.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+My final product does not meet its initial goal, but I'm still proud of what I completed. My equipItem POST method was not working so I instead created detailed tooltips for all the inventory items. Hovering over an item displays its name, type, description, picture, and power level. My app is also responsive! If I was to work on it more, I would keep working towards my goal of being able to create character loadouts. I would also allow users to manage multiple characters instead of one. Linked is a video demo of the website since you need a Destiny account to use it.
+https://youtu.be/5HQQq9hUVR8
