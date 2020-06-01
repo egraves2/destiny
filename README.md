@@ -5,7 +5,7 @@ My goal was to build an applica6on that connects to the game Destiny 2 using the
 
 Currently, Destiny 2 does not support character loadouts. A “loadout” refers to a set of weapons and armor that can be changed all at once. The current interface requires the user to individually swap out each item. Having a loadout system would save time, as different activities need different types of armor and weapons. Therefore, I think all Destiny players would benefit from this app. I planned to make the UI simple and intuitive so this action can be completed quickly. 
 
-##Reflection
+## Reflection
 
 This idea turned out to be much more challenging than I thought it would, but I learned a ton through the process. By the end of the project, I feel MUCH more comfortable with HTML and CSS. I learned how to efficiently use the Inspect tool to perfect the nitty-gritty details. I also now have a better understanding of React terminology and how to write GET/POST requests. Some areas I struggled with were navigating the API documentation and avoiding redundant code. The Bungie.net API lacked many guides, particularly for React. I had to do a ton of "googling" throughout this project to understand things such as CORS. I think my code isn't nearly as concise as it could be. For the sake of time, my code has some redundancy so I think I could have shortened parts of my code with additional functions.
 
